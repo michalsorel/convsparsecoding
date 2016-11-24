@@ -4,26 +4,26 @@ function [U, A, H, report] = convsparseF(G,iH,method,iters,lambda)
 % [U, A, H, report] = convsparseF(G,iH,method,iters,lambda)
 %
 % input:
-% G ... grey-scale input images MxNxL (L... number of input images)
+% G ... gray-scale input images MxNxL (L... number of input images)
 % iH ... initial filters; cell array { scale1(M1xN1xK1) scale2(M2xN2xK2) ...}
 %       default: see code below
 % iters ... structure containing numbers of iterations for the main loop (iters.maxiter_main), 
 %       optimization of feature maps A (iters.maxiter_A), optimization of kernels (iters.maxiter_H)
 % method 
-%           0 = in min_A Woodbury and in min_H iterative Woodbury (for multiple inputs probably corresponds to Wohlberg 2016), 
-%           1 = in min_A Woodbury and in min_H block inverse (modified Bristow, CVPR 2013)
-%           2 = in min_A and min_H block inverse (exactly Bristow, CVPR 2013) 
 %           3 = in min_A and min_H Conjugate Gradients (similar to Zeiler 2010)
-%           -1 = min_A Woodbury, min_H 3D Woodbury (proposed algorithm - variant 2)
-%           -2 = min_A Woodbury, min_H consensus approximative (a bit worse than standard consensus but uses less memory)
-%           -3 = min_A Woodbury, min_H consensus Woodbury (proposed algorithm - variant 3)
+%           2 = in min_A and min_H block inverse (exactly Bristow, CVPR 2013) 
+%           1 = in min_A inverse formula and in min_H block inverse (modified, more efficient, Bristow, CVPR 2013)
+%           0 = in min_A inverse formula and in min_H iterative inverse formula (for multiple inputs probably corresponds to Wohlberg 2016), 
+%           -1 = min_A inverse formula, min_H 3D inverse formula (proposed algorithm - variant 2)
+%           -2 = min_A inverse formula, min_H consensus approximative (a bit worse than standard consensus but uses less memory)
+%           -3 = min_A inverse formula, min_H consensus inverse formula (proposed algorithm - variant 3)
+%           -4 = min_A inverse formula, min_H tiling (proposed algorithm - variant 1)           
+%     
 % lambda ... ratio <0,1> in the denosing step
 %       default: lambda = 0; no denoising 
 %
-%The word Woodbury above means using matrix inversion lemma (aka Woodbury
-%formula). Variant 1 of the proposed algorithm tiles all input images into
-%one large image. For one image methods 0,-1,-2,-3 are equivalent, so you
-%can use any of them but in our experiments we use the method 0.
+%The expression inverse formula above means using matrix inversion lemma (aka Woodbury
+%formula). For one image,  methods 0,-1,-2,-3,-4 are equivalent.
 %
 % output:
 % U ... inferred image conv(A,H) (if lambda > 0 then denoised image)
@@ -34,6 +34,10 @@ function [U, A, H, report] = convsparseF(G,iH,method,iters,lambda)
 %Michal Sorel & Filip Sroubek 2014-16
 
 %% PARAMETERS
+if method == -4 % tile and run basic inverse formula algorithm
+    method = 0;
+    G = reshape(G,[size(G,1) size(G,2)*size(G,3)]);
+end
 % Number of iterations in each step
 if ~exist('iters','var') || isempty(iters)
     iters.maxiter_main = 50; %50; % max number of iterations in the main loop
@@ -326,7 +330,7 @@ function minHstep
     end
 
     for i=1:maxiter_H
-        if method == -1  % 3D Woodbury
+        if method == -1  % 3D inverse formula
             b = FAtG;
             for ii = 1:asize(2)
                 b(:,ii) = b(:,ii) + xi/gamma*reshape(fftn(W(:,:,:,ii) + C(:,:,:,ii)),[asize(1)*asize(3) 1]);
@@ -357,17 +361,17 @@ function minHstep
                 b = FAtG + xi/gamma*reshape(fft2(W + C),asize(1:2));
             end
             switch method
-                case -2  % consensus Woodbury - approximative
+                case -2  % consensus inverse formula - approximative
                     b = conj(FA).*FG + xi/gamma*repmat(reshape(fft2(W+C),asize(1:2)),[1 1 L]);
                     FH = mean(gamma/xi*(b-conj(FA).* ...
                         repmat(sum(FA.*b,2)./(xi/gamma + sum(FA.*conj(FA),2)),[1 asize(2)])),3);             
-                case -3 % consensus Woodbury                  
+                case -3 % consensus inverse formula                  
                     b = conj(FA).*FG + xi/gamma*reshape(fft2(W+C),asize);
                     FH = gamma/xi*(b-conj(FA).* ...
                         repmat(sum(FA.*b,2)./(xi/gamma + sum(FA.*conj(FA),2)),[1 asize(2)])); % jako 0, cili -2 bez prumerovani             
                 case 0
                     if (L>1)
-                        % iterative Woodbury
+                        % iterative inverse formula
                         FH = calcInverse(b);
                     else  % L=1 or tiling
                         FH = gamma/xi*(b-conj(FA).*...

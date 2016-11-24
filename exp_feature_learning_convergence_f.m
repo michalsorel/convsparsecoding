@@ -10,23 +10,23 @@ In = zeros(128,128,size(im,3));
 for i=1:size(im,3)    
     I = double(rgb2gray(squeeze(im(:,:,i,:))))/65535;
     I = I(101:228,101:228); % smaller crop 128x128    
-    [In(:,:,j)] = I; % localnormalize(I,4,4); % for nature sigma=5 otherwise sigma=4    
+    [In(:,:,j)] = localnormalize(I,4,4); % for nature sigma = 5, otherwise sigma = 4    
     j = j+1;
 end  
 
-iters.maxiter_main = 1000; %200; %50; % max number of iterations in the main loop
+iters.maxiter_main = 1000; % max number of iterations in the main loop
 iters.maxiter_A = 10; % max number of iterations in the minAstep
 iters.maxiter_H = 10; % max number of iterations in the minHstep
 iters.showims = false;
-iters.beta = 1e3; %1e3;
-iters.xi = 1e3; %1e3;
+iters.beta = 1e3; 
+iters.xi = 1e3; 
 
 %itersConsensus = iters;
 %itersConsensus.beta = 1e2;
 %itersConsensus.xi = 1e2;
 
 nexp = 35; % experiment number
-L=50; %L = [1 10 100];
+L=50; %L = [1 10 50];
 K=30; %K = [1:10 15:5:50 60:10:100]; Max. 59
 Levels = 3;
 KK = [8 32 64];
@@ -41,8 +41,7 @@ for  l = 1:length(L)
     input = In(:,:,1:L(l));
     for k = 1:length(K)        
         for i = 1:Levels
-            iH{i} = randn(2^(i+2),2^(i+2),KK(i)); %kernels(:,:,1:K(k));
-            %iH{i}(:,:,1) = ones(2^(i+2))*size(iH{1},1)*size(iH{1},2);
+            iH{i} = randn(2^(i+2),2^(i+2),KK(i)); %kernels(:,:,1:K(k));            
         end
         %tic;[Un, A1, H1, rep1{l,k}] = convsparseF(input,iH,2,iters);t(l,k,1)=toc; %Bristow
         %tic;[Un, A3, H3, rep3{l,k}] = convsparseF(input,iH,-1,iters);t(l,k,3)=toc; % 3D Woodbury
