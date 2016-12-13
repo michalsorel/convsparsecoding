@@ -25,9 +25,13 @@ For a more detailed description see <http://zoi.utia.cas.cz/convsparsecoding> or
 *example_featureextraction.m* - example of computing feature maps, once kernels are trained
 
 *convsparseF.m* - main function implementing several variants of the proposed algorithm
-and our implementation of other methods (for details, see help included in the file). 
+and our implementation of other methods (for details, see help included in the file). The code is 
+implemented for 2D model, i.e. for 2D convolutions. The algorithm should work in any dimension
+but this code implements only the 2D variant.  It can be probably used for 1D signals but not 
+for 3D convolutions. 
 
-+ 3D variant of the proposed algorithm (method = -1)
++ 3D variant of the proposed algorithm (method = -1). Note that the name "3D" relates to how the algorithm
+works. This code does not work with 3D convolutions.
 + Consensus variant of the proposed algorithm (method = -3)
 + Tiling variant of the proposed algorithm (method = -4)
 + *M.D. Zeiler, D. Krishnan, G.W. Taylor, R. Fergus, "Deconvolutional networks", 2010* (method =  3)
