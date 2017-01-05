@@ -31,7 +31,7 @@ but this code implements only the 2D variant.  It can be probably used for 1D si
 for 3D convolutions. 
 
 + 3D variant of the proposed algorithm (method = -1). Note that the name "3D" relates to how the algorithm
-works. This code does not work with 3D convolutions.
+works. This code does not work with 3D input data.
 + Consensus variant of the proposed algorithm (method = -3)
 + Tiling variant of the proposed algorithm (method = -4)
 + *M.D. Zeiler, D. Krishnan, G.W. Taylor, R. Fergus, "Deconvolutional networks", 2010* (method =  3)
