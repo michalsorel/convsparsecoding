@@ -4,7 +4,7 @@ This is a Matlab code for convolutional sparse coding, implementing the method p
  vol. 55, pp. 44-51, 2016* (<http://www.sciencedirect.com/science/article/pii/S1051200416300276>)
 
 Convolutional sparse coding is an alternative to standard sparse coding better suited for modelling shift-invariant signals.
-The most time-consuming part of both kernel learning and feature extraction is inversion of certain linear operator 
+The most time-consuming part of both kernel learning and feature extraction is the inversion of a certain linear operator 
 related to convolution. In this work we show how these inversions can be computed non-iteratively in 
 the Fourier domain using the matrix inversion lemma even for multiple training signals. 
 This greatly speeds up computation and  makes convolutional sparse coding computationally feasible even for large problems.
